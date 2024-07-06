@@ -3,10 +3,12 @@ const mongoose = require("mongoose");
 require("dotenv/config.js");
 
 const app = express();
-const port = 3000;
-app.get("/", (req, res) => {
-  res.send("Hello World");
-});
+const port = process.env.PORT;
+const api = process.env.API_URL;
+
+const restaurantRoutes = require("./routes/restaurants");
+
+app.use(`${api}/restaurants`, restaurantRoutes);
 
 //connection to mongodb
 mongoose
