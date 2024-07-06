@@ -34,17 +34,17 @@ const restaurantSchema = mongoose.Schema({
   menu: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Menu",
-    required: true,
+    // required: true,
   },
   order: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Order",
-    required: true,
+    // required: true,
   },
   service: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "RestaurantService",
-    required: true,
+    // required: true,
   },
   isFeatured: {
     type: Boolean,
@@ -65,3 +65,4 @@ restaurantSchema.set("toJSON", {
 });
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);
+exports.restaurantSchema = restaurantSchema;
