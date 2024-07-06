@@ -1,12 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
+const bodyParser = require("body-parser");
 require("dotenv/config.js");
 
 const app = express();
 
 //middlewares
 app.use(morgan("tiny"));
+app.use(bodyParser.json());
 
 const port = process.env.PORT;
 const api = process.env.API_URL;
