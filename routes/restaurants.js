@@ -10,3 +10,5 @@ router.get("/", async (req, res) => {
   }
   res.status(200).send(restaurantList);
 });
+
+module.exports = router;
