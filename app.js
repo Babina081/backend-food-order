@@ -1,13 +1,20 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const morgan = require("morgan");
 require("dotenv/config.js");
 
 const app = express();
+
+//middlewares
+app.use(morgan("tiny"));
+
 const port = process.env.PORT;
 const api = process.env.API_URL;
 
+//imported routes
 const restaurantRoutes = require("./routes/restaurants");
 
+//creating routes to make http request
 app.use(`${api}/restaurants`, restaurantRoutes);
 
 //connection to mongodb
