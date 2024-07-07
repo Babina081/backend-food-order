@@ -22,9 +22,11 @@ const api = process.env.API_URL;
 
 //imported routes
 const restaurantRoutes = require("./routes/restaurants");
+const menuRoutes = require("./routes/menus");
 
 //creating routes to make http request
 app.use(`${api}/restaurants`, restaurantRoutes);
+app.use(`${api}/menus`, menuRoutes);
 
 //connection to mongodb
 mongoose
