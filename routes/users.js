@@ -5,6 +5,9 @@ const router = express.Router();
 //package to encrypt password
 const bcrypt = require("bcryptjs");
 
+//package to generate token
+const jwt = require("jsonwebtoken");
+
 //for multiple images
 const multer = require("multer");
 const mongoose = require("mongoose");
@@ -146,5 +149,36 @@ router.get("/get/count", async (req, res) => {
   res.status(200).send({ success: true, count: userCount });
 });
 
+router.post("/login", async (req, res) => {
+  const user = await User.findOne({ email: req.body.email });
+
+  if (!user) {
+    res
+      .status(500)
+      .json({ success: false, message: "The User cannot be found" });
+  }
+  //checking whether the password of the user entered and the password in the server matches or not
+  if (user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
+    //creating token
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        isAdmin: user.isAdmin,
+      },
+      process.env.TOKEN_SECRET_KEY,
+      { expiresIn: "1d" }
+    );
+    res.status(200).send({
+      success: true,
+      user: user.email,
+      token: token,
+      message: "User is authenticated",
+    });
+  } else {
+    res
+      .status(500)
+      .json({ success: false, message: "The password is incorrect" });
+  }
+});
 
 module.exports = router;
