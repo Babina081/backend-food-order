@@ -3,6 +3,7 @@ const router = express.Router();
 const Restaurant = require("../models/restaurant");
 //for multiple images
 const multer = require("multer");
+const { default: mongoose } = require("mongoose");
 
 //MIME TYPES
 const FILE_TYPE_MAP = {
@@ -174,5 +175,41 @@ router.get("/get/featured/:count", async (req, res) => {
   }
   res.status(200).send({ success: true, restaurantFetaured });
 });
+
+//muktiple image uploads
+router.put(
+  "/gallery-images/:id",
+  uploadOptions.array("images", 10),
+  async (req, res) => {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).send("Invalid restaurant Id");
+    }
+    const files = req.files;
+    let imagesPaths = [];
+
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
+
+    if (files) {
+      files.forEach((file) => {
+        imagesPaths.push(`${basePath}${file.filename}`);
+      });
+    }
+    const restaurant = await Restaurant.findByIdAndUpdate(
+      req.params.id,
+      { images: imagesPaths },
+      {
+        new: true,
+      }
+    );
+    if (!restaurant) {
+      return res.status(400).send("The restaurant cannot be updated");
+    }
+    res.status(200).send({
+      success: true,
+      message: "The restaurant has been updated",
+      restaurant,
+    });
+  }
+);
 
 module.exports = router;
