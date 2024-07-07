@@ -4,6 +4,7 @@ const Menu = require("../models/menu");
 //for multiple images
 const multer = require("multer");
 const mongoose = require("mongoose");
+const { Categories } = require("../models/category");
 
 //MIME TYPES
 const FILE_TYPE_MAP = {
@@ -30,7 +31,15 @@ const uploadOptions = multer({ storage: storage });
 
 //get all menus
 router.get("/", async (req, res) => {
-  const menuList = await Menu.find();
+  // filter menu item
+  let filter = {};
+  if (req.query.category) {
+    filter = {
+      category: req.query.category.split(","),
+    };
+  }
+
+  const menuList = await Menu.find(filter).populate("category");
   if (!menuList) {
     return res.status(500).json({
       success: false,
@@ -42,7 +51,7 @@ router.get("/", async (req, res) => {
 
 //get menu by id
 router.get("/:id", async (req, res) => {
-  const menu = await Menu.findById(req.params.id);
+  const menu = await Menu.findById(req.params.id).populate("category");
   if (!menu) {
     return res
       .status(500)
@@ -53,6 +62,13 @@ router.get("/:id", async (req, res) => {
 
 //create new menu
 router.post("/", uploadOptions.single("image"), async (req, res) => {
+  const category = await Categories.findById(req.body.category);
+  if (!category) {
+    return res
+      .status(200)
+      .json({ success: false, message: "The category cannot be found" });
+  }
+
   const file = req.file;
   if (!file) {
     return res
@@ -71,6 +87,7 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
     image: `${basePath}${fileName}`,
     isFeatured: req.body.isFeatured,
     isFavorite: req.body.isFavorite,
+    category: req.body.category,
   });
 
   menu = await menu.save();
@@ -132,6 +149,17 @@ router.delete("/:id", (req, res) => {
 
 //update menu
 router.put("/:id", uploadOptions.single("image"), async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).json({ message: "Invalid menu id" });
+  }
+
+  const category = await Categories.findById(req.body.category);
+  if (!category) {
+    return res
+      .status(400)
+      .send({ success: false, message: "The category cannot be found" });
+  }
+
   const file = req.file;
   if (!file) {
     return res
@@ -146,15 +174,12 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
     {
       name: req.body.name,
       description: req.body.description,
-      address: req.body.address,
-      rating: req.body.rating,
-      reviewNum: req.body.reviewNum,
-      locationUrl: req.body.locationUrl,
-      orderLimit: req.body.orderLimit,
+      price: req.body.price,
+      menuInStock: req.body.menuInStock,
       image: `${basePath}${fileName}`,
-      isAvailable: req.body.isAvailable,
       isFeatured: req.body.isFeatured,
       isFavorite: req.body.isFavorite,
+      category: req.body.category,
     },
     { new: true }
   );
