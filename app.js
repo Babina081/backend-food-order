@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 require("dotenv/config.js");
 
 const app = express();
@@ -9,6 +10,12 @@ const app = express();
 //middlewares
 app.use(morgan("tiny"));
 app.use(bodyParser.json());
+
+//allow passing all the http in any other origin
+app.use(cors());
+app.options("*", cors());
+
+app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 
 const port = process.env.PORT;
 const api = process.env.API_URL;
