@@ -3,7 +3,7 @@ const router = express.Router();
 const Restaurant = require("../models/restaurant");
 //for multiple images
 const multer = require("multer");
-const { default: mongoose } = require("mongoose");
+const mongoose = require("mongoose");
 
 //MIME TYPES
 const FILE_TYPE_MAP = {
@@ -12,6 +12,7 @@ const FILE_TYPE_MAP = {
   "image/jpg": "jpg",
 };
 
+/*----------- image upload storage starts ----------*/
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const isValid = FILE_TYPE_MAP[file.mimetype];
@@ -27,8 +28,8 @@ const storage = multer.diskStorage({
     cb(null, `${fileName}-${Date.now()}.${extension}`);
   },
 });
-
 const uploadOptions = multer({ storage: storage });
+/*---------image upload storage ends------------*/
 
 //get all restaurants
 router.get("/", async (req, res) => {
