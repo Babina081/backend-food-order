@@ -24,11 +24,13 @@ const api = process.env.API_URL;
 const restaurantRoutes = require("./routes/restaurants");
 const menuRoutes = require("./routes/menus");
 const categoriesRoutes = require("./routes/categories");
+const userRoutes = require("./routes/users");
 
 //creating routes to make http request
 app.use(`${api}/restaurants`, restaurantRoutes);
 app.use(`${api}/menus`, menuRoutes);
 app.use(`${api}/categories`, categoriesRoutes);
+app.use(`${api}/users`, userRoutes);
 
 //connection to mongodb
 mongoose
