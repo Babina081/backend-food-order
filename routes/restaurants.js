@@ -1,6 +1,33 @@
 const express = require("express");
 const router = express.Router();
 const Restaurant = require("../models/restaurant");
+//for multiple images
+const multer = require("multer");
+
+//MIME TYPES
+const FILE_TYPE_MAP = {
+  "image/png": "png",
+  "image/jpeg": "jpeg",
+  "image/jpg": "jpg",
+};
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    const isValid = FILE_TYPE_MAP[file.mimetype];
+    let uploadError = new Error("Invalid image type");
+    if (isValid) {
+      uploadError = null;
+    }
+    cb(uploadError, "public/uploads");
+  },
+  filename: function (req, file, cb) {
+    const fileName = file.originalname.split(" ").join("-");
+    const extension = FILE_TYPE_MAP[file.mimetype];
+    cb(null, `${fileName}-${Date.now()}.${extension}`);
+  },
+});
+
+const uploadOptions = multer({ storage: storage });
 
 //get all restaurants
 router.get("/", async (req, res) => {
@@ -26,17 +53,29 @@ router.get("/:id", async (req, res) => {
 });
 
 //create new restaurant
-router.post("/", async (req, res) => {
+router.post("/", uploadOptions.single("image"), async (req, res) => {
+  const file = req.file;
+  if (!file) {
+    return res
+      .status(400)
+      .send({ success: false, message: "the image file cannot be found" });
+  }
+  const fileName = file.filename;
+  const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
+  console.log(`${basePath}${fileName}`);
+
   let restaurant = new Restaurant({
     name: req.body.name,
+    description: req.body.description,
     address: req.body.address,
     rating: req.body.rating,
     reviewNum: req.body.reviewNum,
     locationUrl: req.body.locationUrl,
     orderLimit: req.body.orderLimit,
-    image: req.body.image,
-    available: req.body.available,
+    image: `${basePath}${fileName}`,
+    isAvailable: req.body.isAvailable,
     isFeatured: req.body.isFeatured,
+    isFavorite: req.body.isFavorite,
   });
 
   restaurant = await restaurant.save();
@@ -50,19 +89,30 @@ router.post("/", async (req, res) => {
 });
 
 //update restaurant
-router.put("/:id", async (req, res) => {
+router.put("/:id", uploadOptions.single("image"), async (req, res) => {
+  const file = req.file;
+  if (!file) {
+    return res
+      .status(400)
+      .send({ success: false, message: "the image file cannot be found" });
+  }
+  const fileName = file.filename;
+  const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
+  console.log(`${basePath}${fileName}`);
   const restaurant = await Restaurant.findByIdAndUpdate(
     req.params.id,
     {
       name: req.body.name,
+      description: req.body.description,
       address: req.body.address,
       rating: req.body.rating,
       reviewNum: req.body.reviewNum,
       locationUrl: req.body.locationUrl,
       orderLimit: req.body.orderLimit,
-      image: req.body.image,
-      available: req.body.available,
+      image: `${basePath}${fileName}`,
+      isAvailable: req.body.isAvailable,
       isFeatured: req.body.isFeatured,
+      isFavorite: req.body.isFavorite,
     },
     { new: true }
   );
