@@ -27,9 +27,13 @@ const restaurantSchema = mongoose.Schema({
       type: String,
     },
   ],
-  available: {
+  isAvailable: {
     type: Boolean,
     default: true,
+  },
+  isFavorite: {
+    type: Boolean,
+    default: false,
   },
   menu: {
     type: mongoose.Schema.Types.ObjectId,
