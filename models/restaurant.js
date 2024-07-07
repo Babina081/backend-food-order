@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 
 const restaurantSchema = mongoose.Schema({
   name: { type: String, required: true },
+  description: {
+    type: String,
+    required: true,
+  },
   address: {
     type: String,
     required: true,
@@ -22,16 +26,16 @@ const restaurantSchema = mongoose.Schema({
     default: 0,
   },
   image: { type: String, default: "" },
-  images: [
-    {
-      type: String,
-    },
-  ],
+  images: [{ type: String }],
   isAvailable: {
     type: Boolean,
     default: true,
   },
   isFavorite: {
+    type: Boolean,
+    default: false,
+  },
+  isFeatured: {
     type: Boolean,
     default: false,
   },
@@ -50,10 +54,7 @@ const restaurantSchema = mongoose.Schema({
     ref: "RestaurantService",
     // required: true,
   },
-  isFeatured: {
-    type: Boolean,
-    default: false,
-  },
+
   dateCreated: {
     type: Date,
     default: Date.now,
