@@ -8,8 +8,8 @@ const menuSchema = mongoose.Schema({
   image: { type: String, default: "" },
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Category",
-    // required: true,
+    ref: "Categories",
+    required: true,
   },
   isFeatured: { type: Boolean, default: false },
   isFavorite: { type: Boolean, default: false },
