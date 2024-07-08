@@ -39,21 +39,24 @@ const restaurantSchema = mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  menu: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Menu",
-    // required: true,
-  },
+  menu: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MenuItemLists",
+      required: true,
+    },
+  ],
   order: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Order",
     // required: true,
   },
-  service: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "RestaurantService",
-    // required: true,
-  },
+  service: [
+    {
+      type: String,
+      required: true,
+    },
+  ],
 
   dateCreated: {
     type: Date,
@@ -70,4 +73,4 @@ restaurantSchema.set("toJSON", {
 });
 
 module.exports = mongoose.model("Restaurant", restaurantSchema);
-exports.restaurantSchema = restaurantSchema;
+// exports.restaurantSchema = restaurantSchema;
