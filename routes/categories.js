@@ -53,19 +53,19 @@ router.get("/:id", async (req, res) => {
 
 //create new category
 router.post("/", uploadOptions.single("image"), async (req, res) => {
-  const file = req.file;
-  if (!file) {
-    return res
-      .status(400)
-      .send({ success: false, message: "the image file cannot be found" });
-  }
-  const fileName = file.filename;
-  const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
+  // const file = req.file;
+  // if (!file) {
+  //   return res
+  //     .status(400)
+  //     .send({ success: false, message: "the image file cannot be found" });
+  // }
+  // const fileName = req.file.filename;
+  // const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
 
   let category = new Category({
     name: req.body.name,
     icon: req.body.icon,
-    image: `${basePath}${fileName}`,
+    // image: `${basePath}${fileName}`,
   });
 
   category = await category.save();
