@@ -4,6 +4,7 @@ const Restaurant = require("../models/restaurant");
 //for multiple images
 const multer = require("multer");
 const mongoose = require("mongoose");
+const { MenuItemList } = require("../models/menuItemList");
 
 //MIME TYPES
 const FILE_TYPE_MAP = {
@@ -29,11 +30,20 @@ const storage = multer.diskStorage({
   },
 });
 const uploadOptions = multer({ storage: storage });
-/*---------image upload storage ends------------*/
+/*---------image upload storage starts------------*/
 
 //get all restaurants
 router.get("/", async (req, res) => {
-  const restaurantList = await Restaurant.find();
+  const restaurantList = await Restaurant.find()
+    .sort({ dateCreated: -1 })
+    // .populate("menu")
+    .populate({
+      path: "menu",
+      populate: {
+        path: "menu",
+        populate: "category",
+      },
+    });
   if (!restaurantList) {
     return res.status(500).json({
       success: false,
@@ -45,7 +55,19 @@ router.get("/", async (req, res) => {
 
 //get restaurant by id
 router.get("/:id", async (req, res) => {
-  const restaurant = await Restaurant.findById(req.params.id);
+  const restaurant = await Restaurant.findById(req.params.id)
+    // .populate("menu")
+    .populate({
+      path: "menu",
+      populate: {
+        path: "menu",
+        populate: {
+          path: "category", // Finally populate Categories
+          model: "Categories", // Ensure correct model name
+        },
+      },
+    });
+
   if (!restaurant) {
     return res
       .status(500)
@@ -56,6 +78,17 @@ router.get("/:id", async (req, res) => {
 
 //create new restaurant
 router.post("/", uploadOptions.single("image"), async (req, res) => {
+  const menuItemIds = Promise.all(
+    req.body.menu.map(async (menuItem) => {
+      let newMenuItem = new MenuItemList({
+        menu: menuItem.menu,
+      });
+      newMenuItem = await newMenuItem.save();
+      return newMenuItem._id;
+    })
+  );
+  const menuItemsIdsResolved = await menuItemIds;
+
   const file = req.file;
   if (!file) {
     return res
@@ -78,6 +111,8 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
     isAvailable: req.body.isAvailable,
     isFeatured: req.body.isFeatured,
     isFavorite: req.body.isFavorite,
+    service: req.body.service,
+    menu: menuItemsIdsResolved,
   });
 
   restaurant = await restaurant.save();
@@ -92,6 +127,17 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
 
 //update restaurant
 router.put("/:id", uploadOptions.single("image"), async (req, res) => {
+  const menuItemIds = Promise.all(
+    req.body.menu.map(async (menuItem) => {
+      let newMenuItem = new MenuItemList({
+        menu: menuItem.menu,
+      });
+      newMenuItem = await newMenuItem.save();
+      return newMenuItem._id;
+    })
+  );
+  const menuItemsIdsResolved = await menuItemIds;
+
   const file = req.file;
   if (!file) {
     return res
@@ -115,6 +161,8 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
       isAvailable: req.body.isAvailable,
       isFeatured: req.body.isFeatured,
       isFavorite: req.body.isFavorite,
+      service: req.body.service,
+      menu: menuItemsIdsResolved,
     },
     { new: true }
   );
