@@ -4,7 +4,7 @@ const Menu = require("../models/menu");
 //for multiple images
 const multer = require("multer");
 const mongoose = require("mongoose");
-const { Categories } = require("../models/category");
+const Category = require("../models/category");
 
 //MIME TYPES
 const FILE_TYPE_MAP = {
@@ -62,7 +62,7 @@ router.get("/:id", async (req, res) => {
 
 //create new menu
 router.post("/", uploadOptions.single("image"), async (req, res) => {
-  const category = await Categories.findById(req.body.category);
+  const category = await Category.findById(req.body.category);
   if (!category) {
     return res
       .status(200)
@@ -153,7 +153,7 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
     return res.status(400).json({ message: "Invalid menu id" });
   }
 
-  const category = await Categories.findById(req.body.category);
+  const category = await Category.findById(req.body.category);
   if (!category) {
     return res
       .status(400)
