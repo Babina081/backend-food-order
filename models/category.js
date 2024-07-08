@@ -5,7 +5,8 @@ const categoriesSchema = mongoose.Schema({
   icon: { type: String },
   image: {
     type: String,
+    default: "",
   },
 });
 
-exports.Categories = mongoose.model("Categories", categoriesSchema);
+module.exports = mongoose.model("Categories", categoriesSchema);
